@@ -1,0 +1,87 @@
+# =========================
+# Sistema Operativo
+# =========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# =========================
+# Entornos Virtuales y Credenciales
+# =========================
+.env
+venv/
+env/
+ENV/
+.venv/
+*models/
+*run/
+
+# =========================
+# Python & Data Science
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+.ipynb_checkpoints/
+# Modelos entrenados y datasets grandes
+*.pt
+*.pth
+*.dat
+*.csv
+
+# =========================
+# C / C++ y Microcontroladores (Arduino/ESP32)
+# =========================
+*.o
+*.ko
+*.obj
+*.elf
+*.ilk
+*.map
+*.exp
+*.gch
+*.pch
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.so.*
+*.dylib
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.bin
+build/
+.pio/
+
+# =========================
+# LaTeX
+# =========================
+*.aux
+*.bbl
+*.blg
+*.fls
+*.log
+*.fdb_latexmk
+*.synctex.gz
+*.toc
+*.bcf
+*.run.xml
+*.out
+
+# =========================
+# IDEs y Editores
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo

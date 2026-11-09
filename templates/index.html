@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sapiens — Chat de Modelos Locales</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e8e9ed' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m16 4 4 4M4 20l4-.8L19 8a2.8 2.8 0 0 0-4-4L4 15l-.8 4Z'/%3E%3Cpath d='M13.5 5.5 18.5 10.5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <div class="app-layout" id="appLayout">
+    <!-- Overlay móvil para cerrar sidebar -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Barra lateral izquierda (Historial y RAM) -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <span class="brand-title serif">Sapiens</span>
+        </div>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn-new-chat" id="newChatBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Nueva conversación</span>
+        </button>
+
+        <div class="search-wrap">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="chatSearchInput" placeholder="Buscar en historial..." autocomplete="off">
+        </div>
+      </div>
+
+      <div class="sidebar-section-title">HISTORIAL DE CHATS</div>
+      <div class="chat-list" id="chatList">
+        <!-- Renderizado dinámicamente desde app.js -->
+      </div>
+
+      <!-- Monitor y liberador de RAM -->
+      <div class="sidebar-footer">
+        <div class="ram-card">
+          <div class="ram-card-header">
+            <div class="ram-title">
+              <span class="ram-pulse"></span>
+              <span>MEMORIA RAM</span>
+            </div>
+            <button class="ram-unload-btn" id="unloadRamBtn" title="Descargar modelo actual y liberar memoria del servidor">
+              Liberar RAM
+            </button>
+          </div>
+          <div class="ram-bar-track">
+            <div class="ram-bar-fill" id="ramBarFill" style="width: 25%;"></div>
+          </div>
+          <div class="ram-metrics">
+            <span id="ramUsageText">RAM: 1.0 GB / 3.7 GB</span>
+            <span id="ramPercentText">27%</span>
+          </div>
+          <div class="ram-loaded-badge" id="ramLoadedBadge" title="Modelo cargado actualmente en la memoria de Ollama">
+            En RAM: <strong id="ramLoadedName">Ninguno (Libre)</strong>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal: Chat -->
+    <div class="main-content">
+      <!-- Barra superior -->
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-btn toggle-sidebar-btn" id="toggleSidebarBtn" title="Alternar panel lateral" aria-label="Menú">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+            </svg>
+          </button>
+          <div class="chat-header-info">
+            <h2 class="active-chat-title" id="activeChatTitle">Conversación</h2>
+          </div>
+        </div>
+
+      </header>
+
+      <!-- Área de mensajes scrolleable -->
+      <main class="chat-scroll" id="chatScroll">
+        <div class="thread" id="thread">
+          <!-- Hero de bienvenida cuando no hay mensajes -->
+          <section class="hero" id="hero">
+            <h1 class="hero-title serif">
+              Conversa con <span id="heroModelName">tu modelo</span>
+            </h1>
+
+            <div class="starter-cards" id="starterCards">
+              <button class="starter-card" data-prompt="¿Cuáles son tus principales fortalezas y en qué tareas destacas más?">
+                <svg class="starter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m13 2-3 8h7l-6 12 2-9H6z"></path></svg>
+                <span class="starter-text">¿Cuáles son tus fortalezas y para qué tareas estás optimizado?</span>
+              </button>
+              <button class="starter-card" data-prompt="Escribe un script en Python con Flask y un endpoint simple de salud para monitorear servicios en Linux.">
+                <svg class="starter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"></rect><path d="M8 22h8m-4-4v4"></path><path d="m9 9-2 2 2 2m6-4 2 2-2 2m-2-5-2 6"></path></svg>
+                <span class="starter-text">Escribe un script en Python para monitoreo de servicios en Linux</span>
+              </button>
+              <button class="starter-card" data-prompt="Explica en 3 pasos cómo se administra el uso de memoria RAM al ejecutar LLMs en servidores con recursos acotados.">
+                <svg class="starter-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 18V5a3 3 0 0 0-5.8-1A4 4 0 0 0 4 11a4 4 0 0 0 2 7h6"></path><path d="M12 18V5a3 3 0 0 1 5.8-1A4 4 0 0 1 20 11a4 4 0 0 1-2 7h-6m-5-6h2m8 0h-2m-5 6v3"></path></svg>
+                <span class="starter-text">¿Cómo se optimiza la RAM al correr LLMs en servidores pequeños?</span>
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Caja de composición de mensajes -->
+      <footer class="composer-container">
+        <form class="composer-box" id="composerForm">
+          <textarea
+            id="composerInput"
+            rows="1"
+            placeholder="Escribe un mensaje al modelo..."
+            autofocus
+          ></textarea>
+          <div class="composer-controls">
+            <div class="model-select-wrap">
+              <select id="modelSelect" hidden aria-hidden="true" tabindex="-1"></select>
+              <button class="model-picker-trigger" id="modelPickerTrigger" type="button" aria-haspopup="listbox" aria-expanded="false" aria-label="Seleccionar modelo">
+                <span id="modelPickerLabel">Seleccionar modelo</span>
+                <svg class="model-picker-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+              </button>
+              <div class="model-picker-menu" id="modelPickerMenu" role="listbox" aria-label="Modelos disponibles" hidden></div>
+            </div>
+            <span class="model-category" id="modelCategory" aria-live="polite"></span>
+            <button type="submit" id="sendBtn" class="btn-send" aria-label="Enviar">
+              <svg class="send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"></path><path d="m5 12 7-7 7 7"></path></svg>
+              <span class="visually-hidden">Enviar</span>
+            </button>
+          </div>
+        </form>
+        <div class="composer-hint" id="composerHint">
+          <span>Enter envía · Shift+Enter nueva línea</span>
+          <span class="hint-sep">·</span>
+          <span id="memoryStatusHint">RAM protegida</span>
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
